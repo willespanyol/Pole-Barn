@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Agricultural Barn">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#94a3b8" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <rect width="1200" height="800" fill="url(#grid)"/>
+  <path d="M0 640 C220 590 370 670 560 620 C740 575 925 620 1200 565 L1200 800 L0 800Z" fill="#cbd5e1"/>
+  <g transform="translate(210 245)">
+    <path d="M90 190 L410 35 L730 190 Z" fill="#D9A441"/>
+    <path d="M140 190 H680 V500 H140 Z" fill="#182A1D"/>
+    <path d="M95 205 H725" stroke="#ffffff" stroke-opacity="0.85" stroke-width="18"/>
+    <path d="M230 270 H365 V500 H230 Z" fill="#f8fafc" opacity="0.92"/>
+    <path d="M455 275 H610 V395 H455 Z" fill="#f8fafc" opacity="0.92"/>
+    <path d="M230 352 H365 M298 270 V500 M455 335 H610 M532 275 V395" stroke="#182A1D" stroke-opacity="0.5" stroke-width="8"/>
+    <path d="M140 500 H680" stroke="#D9A441" stroke-width="18"/>
+  </g>
+  <g transform="translate(70 80)">
+    <rect width="410" height="76" rx="0" fill="#ffffff" fill-opacity="0.95"/>
+    <path d="M0 76 H410" stroke="#D9A441" stroke-width="6"/>
+    <text x="30" y="48" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="800" fill="#182A1D">Agricultural Barn</text>
+  </g>
+</svg>

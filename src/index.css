@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Condensed:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Mobile / WebView globals ── */
+html {
+  /* Prevent pull-to-refresh browser default on iOS */
+  overscroll-behavior: none;
+  /* Safe area support */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+body {
+  overscroll-behavior: none;
+  /* Reserve space for bottom tab bar on mobile */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+/* Minimum tap target */
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+/* Ensure text is readable */
+body, input, textarea, select, button {
+  font-size: max(14px, 1em);
+}
+/* Page transitions */
+.page-enter { opacity: 0; transform: translateX(100%); }
+.page-enter-active { opacity: 1; transform: translateX(0); transition: opacity 300ms ease, transform 300ms ease; }
+.page-exit { opacity: 1; transform: translateX(0); }
+.page-exit-active { opacity: 0; transform: translateX(-30%); transition: opacity 300ms ease, transform 300ms ease; }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 215 47% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 47% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 47% 10%;
+    --primary: 215 47% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 215 47% 10%;
+    --muted: 214 32% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 44 96% 53%;
+    --accent-foreground: 215 47% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 215 47% 10%;
+    --radius: 0.375rem;
+
+    /* Brand tokens */
+    --navy: #0A1628;
+    --yellow: #F5C518;
+    --steel: #4A5568;
+    --silver: #E2E8F0;
+    --font-inter: 'Inter', sans-serif;
+    --font-condensed: 'Roboto Condensed', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 215 47% 8%;
+      --foreground: 0 0% 98%;
+      --card: 215 47% 10%;
+      --card-foreground: 0 0% 98%;
+      --popover: 215 47% 10%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 44 96% 53%;
+      --primary-foreground: 215 47% 10%;
+      --secondary: 215 32% 17%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 215 32% 17%;
+      --muted-foreground: 215 20% 65%;
+      --accent: 44 96% 53%;
+      --accent-foreground: 215 47% 10%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 215 32% 17%;
+      --input: 215 32% 17%;
+      --ring: 44 96% 53%;
+    }
+  }
+
+  .dark {
+    --background: 215 47% 8%;
+    --foreground: 0 0% 98%;
+    --card: 215 47% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 215 47% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 44 96% 53%;
+    --primary-foreground: 215 47% 10%;
+    --secondary: 215 32% 17%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 215 32% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 44 96% 53%;
+    --accent-foreground: 215 47% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 215 32% 17%;
+    --input: 215 32% 17%;
+    --ring: 44 96% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter);
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-condensed);
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .font-inter { font-family: var(--font-inter); }
+  .font-condensed { font-family: var(--font-condensed); }
+  .font-mono-tech { font-family: var(--font-mono); }
+  .text-navy { color: var(--navy); }
+  .bg-navy { background-color: var(--navy); }
+  .text-yellow { color: var(--yellow); }
+  .bg-yellow { background-color: var(--yellow); }
+  .text-steel { color: var(--steel); }
+  .bg-steel { background-color: var(--steel); }
+  .border-silver { border-color: var(--silver); }
+  .bg-silver { background-color: var(--silver); }
+
+  .grid-overlay {
+    background-image: 
+      linear-gradient(rgba(10,22,40,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,22,40,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .blueprint-bg {
+    background-color: #0A1628;
+    background-image: 
+      linear-gradient(rgba(245,197,24,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,197,24,0.06) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .yellow-btn {
+    background-color: var(--yellow);
+    color: var(--navy);
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .yellow-btn:hover {
+    background-color: #e6b800;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(245,197,24,0.4);
+  }
+
+  .navy-btn {
+    background-color: var(--navy);
+    color: white;
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .navy-btn:hover {
+    background-color: #162040;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(10,22,40,0.4);
+  }
+
+  .tech-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .section-line {
+    border-top: 1px solid rgba(10,22,40,0.1);
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Bottom tab safe padding for pages */
+  .page-content {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 4rem);
+  }
+  @media (min-width: 1024px) {
+    .page-content { padding-bottom: 0; }
+  }
+
+  /* Non-text interactive elements should not be selectable */
+  nav, header, footer, button, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .crosshair-cursor * {
+    cursor: crosshair !important;
+  }
+}

@@ -29,6 +29,7 @@ const initialData = {
   selectedServices: [],
   projectAddress: '', city: '', state: '', county: '', country: '',
   buildingDepartment: '', forPermitSubmission: '', hasPermitComments: '',
+  stampingRequired: '', stampingJurisdiction: '', stampingEmirate: '',
   buildingCode: '', windSpeed: '', snowLoad: '', seismicCategory: '', soilBearing: '',
   floodZone: '', hasSitePlan: '', hasSurvey: '',
   selectedPackage: '', selectedAddOns: [],
@@ -47,6 +48,10 @@ export default function Order() {
   const updateData = (updates) => setData(prev => ({ ...prev, ...updates }));
 
   const handleSubmit = async () => {
+    if (data.stampingRequired === 'Yes' && (!data.stampingJurisdiction || (data.stampingJurisdiction === 'United Arab Emirates (UAE)' && !data.stampingEmirate))) {
+      setStep(3);
+      return;
+    }
     setLoading(true);
     const order = await appClient.entities.ProjectOrder.create(data);
     // Create tentative Google Calendar consultation event

@@ -4,6 +4,7 @@ import { appClient } from '@/api/appClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Paperclip, CheckCircle2 } from 'lucide-react';
 import PageLayout from '../components/layout/PageLayout';
+import StampRequestFields from '../components/shared/StampRequestFields';
 
 const PROJECT_TYPES = [
   'Pole Barn', 'Post-Frame Building', 'Barndominium', 'Garage',
@@ -62,6 +63,7 @@ export default function Estimator() {
     numberOfFloors: '', roofStyle: '', intendedUse: '', projectLocation: '',
     foundation: '', framing: '', mep: '', calculations: '', revisions: '',
     timeline: '', fullName: '', email: '', phone: '',
+    stampingRequired: '', stampingJurisdiction: '', stampingEmirate: '',
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -71,7 +73,8 @@ export default function Estimator() {
 
   const update = (key, val) => { setForm(p => ({ ...p, [key]: val })); setShowResult(false); };
 
-  const canSubmit = form.projectType && form.fullName && form.email;
+  const canSubmit = form.projectType && form.fullName && form.email &&
+    (form.stampingRequired !== 'Yes' || (form.stampingJurisdiction && (form.stampingJurisdiction !== 'United Arab Emirates (UAE)' || form.stampingEmirate)));
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -135,6 +138,9 @@ export default function Estimator() {
         form.revisions === 'Yes' ? 'Permit review revisions' : null,
       ].filter(Boolean),
       timeline: form.timeline,
+      stampingRequired: form.stampingRequired,
+      stampingJurisdiction: form.stampingJurisdiction,
+      stampingEmirate: form.stampingEmirate,
       fullName: form.fullName,
       email: form.email,
       phone: form.phone,
@@ -247,6 +253,13 @@ export default function Estimator() {
                 </div>
               </div>
 
+              <StampRequestFields
+                stampingRequired={form.stampingRequired}
+                stampingJurisdiction={form.stampingJurisdiction}
+                stampingEmirate={form.stampingEmirate}
+                onChange={changes => setForm(prev => ({ ...prev, ...changes }))}
+              />
+
               {/* Upload */}
               <div>
                 <div className="font-mono text-[9px] text-steel tracking-widest uppercase mb-3">4. Upload Files (Optional)</div>
@@ -340,7 +353,7 @@ export default function Estimator() {
                         <div className="bg-yellow/10 border border-yellow/30 p-4 mb-3">
                           <div className="font-mono text-yellow text-[9px] tracking-widest uppercase mb-1">Estimated Design Package Range</div>
                           <div className="font-condensed font-black text-white text-3xl tracking-tight">{priceRange.label}</div>
-                          <p className="font-inter text-gray-400 text-[10px] mt-1 leading-relaxed">Starting range for drawings only — not construction cost. Final quote may vary based on complexity, location, and permit scope.</p>
+                          <p className="font-inter text-gray-400 text-[10px] mt-1 leading-relaxed">Starting range for drafting and drawings only; professional review and stamping are priced separately according to the selected jurisdiction. Final quote may vary based on complexity and permit scope.</p>
                         </div>
                       )}
 

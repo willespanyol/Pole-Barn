@@ -1,3 +1,5 @@
+import StampRequestFields from '../shared/StampRequestFields';
+
 const Field = ({ label, value, onChange, placeholder }) => (
   <div>
     <label className="font-mono text-[9px] text-steel tracking-widest uppercase block mb-1.5">{label}</label>
@@ -47,6 +49,13 @@ export default function OrderStep4({ data, updateData }) {
           <YesNo label="Is this for permit submission?" value={data.forPermitSubmission} onChange={v => updateData({ forPermitSubmission: v })} />
           <YesNo label="Has the permit office issued comments?" value={data.hasPermitComments} onChange={v => updateData({ hasPermitComments: v })} />
         </div>
+
+        <StampRequestFields
+          stampingRequired={data.stampingRequired}
+          stampingJurisdiction={data.stampingJurisdiction}
+          stampingEmirate={data.stampingEmirate}
+          onChange={updateData}
+        />
 
         <div className="pt-4 border-t border-silver">
           <div className="font-mono text-[9px] text-steel tracking-widest uppercase mb-3">Design Loads (if known — leave blank if unknown)</div>

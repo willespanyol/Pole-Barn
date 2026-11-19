@@ -117,15 +117,25 @@ function createEntityClient(entityName) {
 
     async create(payload = {}) {
       const timestamp = nowIso()
+      const id = crypto.randomUUID()
+      const created_by = payload.email || payload.clientEmail || payload.created_by || (await getCurrentUserEmail()) || null
+
+      // Generate a client-side ID and do not SELECT the inserted row. Public
+      // contact/order INSERT policies do not grant anonymous users SELECT access.
+      const created = {
+        id,
+        ...payload,
+        created_by,
+        created_date: timestamp,
+        updated_date: timestamp,
+      }
 
       if (!supabase) {
-        const created = {
-          id: crypto.randomUUID(),
-          ...payload,
-          created_by: payload.email || null,
-          created_date: timestamp,
-          updated_date: timestamp,
+        // Never pretend a production enquiry was submitted to localStorage.
+        if (!import.meta.env.DEV) {
+          throw new Error('The website submission service is not configured.')
         }
+        // Development demo mode only: does NOT save to the production website.
         const rows = readLocal(entityName)
         rows.unshift(created)
         writeLocal(entityName, rows)
@@ -133,15 +143,24 @@ function createEntityClient(entityName) {
         return created
       }
 
-      const created_by = (await getCurrentUserEmail()) || payload.email || payload.created_by || null
-      const { data, error } = await supabase
-        .from(ENTITY_TABLE)
-        .insert({ entity: entityName, data: payload, created_by })
-        .select('*')
-        .single()
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 20000)
+      try {
+        const { error } = await supabase
+          .from(ENTITY_TABLE)
+          .insert({ id, entity: entityName, data: payload, created_by })
+          .abortSignal(controller.signal)
 
-      if (error) throw error
-      return normalizeRecord(data)
+        if (error) throw error
+        return created
+      } catch (error) {
+        if (controller.signal.aborted) {
+          throw new Error('Submission timed out; we could not confirm whether the database received it. Please contact our team before submitting again.')
+        }
+        throw error
+      } finally {
+        clearTimeout(timeoutId)
+      }
     },
 
     async update(id, patch = {}) {

@@ -101,6 +101,7 @@ export default function Navbar() {
                 </Link>
               )
             ))}
+            <a href="/blog/" className="px-3 py-2 font-inter text-sm font-medium text-gray-300 hover:text-yellow">Articles</a>
           </div>
 
           {/* CTA */}
@@ -150,6 +151,7 @@ export default function Navbar() {
                 </Link>
               )
             ))}
+            <a href="/blog/" className="block px-4 py-2.5 font-inter text-sm font-medium text-gray-300 hover:text-yellow">Articles</a>
             <div className="px-4 pt-3 space-y-2 border-t border-white/10 mt-2">
               <Link
                 to="/order"

@@ -4,6 +4,8 @@ import { appClient } from '@/api/appClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Paperclip, CheckCircle2 } from 'lucide-react';
 import PageLayout from '../components/layout/PageLayout';
+import { submissionErrorMessage } from '@/lib/submissionErrors';
+import StampRequestFields from '../components/shared/StampRequestFields';
 
 const PROJECT_TYPES = [
   'Pole Barn', 'Post-Frame Building', 'Barndominium', 'Garage',
@@ -62,16 +64,19 @@ export default function Estimator() {
     numberOfFloors: '', roofStyle: '', intendedUse: '', projectLocation: '',
     foundation: '', framing: '', mep: '', calculations: '', revisions: '',
     timeline: '', fullName: '', email: '', phone: '',
+    stampingRequired: '', stampingJurisdiction: '', stampingEmirate: '',
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const update = (key, val) => { setForm(p => ({ ...p, [key]: val })); setShowResult(false); };
 
-  const canSubmit = form.projectType && form.fullName && form.email;
+  const canSubmit = form.projectType && form.fullName && form.email &&
+    (form.stampingRequired !== 'Yes' || (form.stampingJurisdiction && (form.stampingJurisdiction !== 'United Arab Emirates (UAE)' || form.stampingEmirate)));
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -116,33 +121,44 @@ export default function Estimator() {
   const handleScopeReview = () => setShowResult(true);
 
   const handleSubmit = async () => {
+    if (loading || !canSubmit) return;
+    setSubmitError('');
     setLoading(true);
-    await appClient.entities.ProjectOrder.create({
-      projectType: form.projectType,
-      buildingLength: form.buildingLength,
-      buildingWidth: form.buildingWidth,
-      buildingHeight: form.buildingHeight,
-      numberOfFloors: form.numberOfFloors,
-      roofStyle: form.roofStyle,
-      intendedUse: form.intendedUse,
-      projectAddress: form.projectLocation,
-      hasSitePlan: form.foundation,
-      selectedServices: [
-        form.foundation === 'Yes' ? 'Foundation plan' : null,
-        form.framing === 'Yes' ? 'Structural framing drawings' : null,
-        form.mep === 'Yes' ? 'MEP layouts' : null,
-        form.calculations === 'Yes' ? 'Structural calculations' : null,
-        form.revisions === 'Yes' ? 'Permit review revisions' : null,
-      ].filter(Boolean),
-      timeline: form.timeline,
-      fullName: form.fullName,
-      email: form.email,
-      phone: form.phone,
-      uploadedFileNames: uploadedFiles,
-      status: 'new',
-    });
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      await appClient.entities.ProjectOrder.create({
+        projectType: form.projectType,
+        buildingLength: form.buildingLength,
+        buildingWidth: form.buildingWidth,
+        buildingHeight: form.buildingHeight,
+        numberOfFloors: form.numberOfFloors,
+        roofStyle: form.roofStyle,
+        intendedUse: form.intendedUse,
+        projectAddress: form.projectLocation,
+        hasSitePlan: form.foundation,
+        selectedServices: [
+          form.foundation === 'Yes' ? 'Foundation plan' : null,
+          form.framing === 'Yes' ? 'Structural framing drawings' : null,
+          form.mep === 'Yes' ? 'MEP layouts' : null,
+          form.calculations === 'Yes' ? 'Structural calculations' : null,
+          form.revisions === 'Yes' ? 'Permit review revisions' : null,
+        ].filter(Boolean),
+        timeline: form.timeline,
+        stampingRequired: form.stampingRequired,
+        stampingJurisdiction: form.stampingJurisdiction,
+        stampingEmirate: form.stampingEmirate,
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        uploadedFileNames: uploadedFiles,
+        status: 'new',
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Estimator submission failed:', error);
+      setSubmitError(submissionErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -247,6 +263,13 @@ export default function Estimator() {
                 </div>
               </div>
 
+              <StampRequestFields
+                stampingRequired={form.stampingRequired}
+                stampingJurisdiction={form.stampingJurisdiction}
+                stampingEmirate={form.stampingEmirate}
+                onChange={changes => setForm(prev => ({ ...prev, ...changes }))}
+              />
+
               {/* Upload */}
               <div>
                 <div className="font-mono text-[9px] text-steel tracking-widest uppercase mb-3">4. Upload Files (Optional)</div>
@@ -340,7 +363,7 @@ export default function Estimator() {
                         <div className="bg-yellow/10 border border-yellow/30 p-4 mb-3">
                           <div className="font-mono text-yellow text-[9px] tracking-widest uppercase mb-1">Estimated Design Package Range</div>
                           <div className="font-condensed font-black text-white text-3xl tracking-tight">{priceRange.label}</div>
-                          <p className="font-inter text-gray-400 text-[10px] mt-1 leading-relaxed">Starting range for drawings only — not construction cost. Final quote may vary based on complexity, location, and permit scope.</p>
+                          <p className="font-inter text-gray-400 text-[10px] mt-1 leading-relaxed">Starting range for drafting and drawings only; professional review and stamping are priced separately according to the selected jurisdiction. Final quote may vary based on complexity and permit scope.</p>
                         </div>
                       )}
 
@@ -352,6 +375,12 @@ export default function Estimator() {
                       </div>
 
                       <div className="space-y-2">
+                        {submitError && (
+                          <div role="alert" className="mb-3 border border-red-400 bg-red-950/70 text-red-100 p-4 font-inter text-sm">
+                            <strong>Estimate request not confirmed.</strong> {submitError}{' '}
+                            <a href="mailto:info@polebarndominiumsite.site" className="underline font-semibold">Email our team</a>.
+                          </div>
+                        )}
                         <button onClick={handleSubmit} disabled={loading || !canSubmit}
                           className="yellow-btn w-full py-3 text-xs text-center disabled:opacity-50">
                           {loading ? 'Submitting...' : 'Submit for Pricing Review'}

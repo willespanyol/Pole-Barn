@@ -4,6 +4,7 @@ import { appClient } from '@/api/appClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Paperclip, CheckCircle2 } from 'lucide-react';
 import PageLayout from '../components/layout/PageLayout';
+import { submissionErrorMessage } from '@/lib/submissionErrors';
 import StampRequestFields from '../components/shared/StampRequestFields';
 
 const PROJECT_TYPES = [
@@ -70,6 +71,7 @@ export default function Estimator() {
   const [showResult, setShowResult] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const update = (key, val) => { setForm(p => ({ ...p, [key]: val })); setShowResult(false); };
 
@@ -119,36 +121,44 @@ export default function Estimator() {
   const handleScopeReview = () => setShowResult(true);
 
   const handleSubmit = async () => {
+    if (loading || !canSubmit) return;
+    setSubmitError('');
     setLoading(true);
-    await appClient.entities.ProjectOrder.create({
-      projectType: form.projectType,
-      buildingLength: form.buildingLength,
-      buildingWidth: form.buildingWidth,
-      buildingHeight: form.buildingHeight,
-      numberOfFloors: form.numberOfFloors,
-      roofStyle: form.roofStyle,
-      intendedUse: form.intendedUse,
-      projectAddress: form.projectLocation,
-      hasSitePlan: form.foundation,
-      selectedServices: [
-        form.foundation === 'Yes' ? 'Foundation plan' : null,
-        form.framing === 'Yes' ? 'Structural framing drawings' : null,
-        form.mep === 'Yes' ? 'MEP layouts' : null,
-        form.calculations === 'Yes' ? 'Structural calculations' : null,
-        form.revisions === 'Yes' ? 'Permit review revisions' : null,
-      ].filter(Boolean),
-      timeline: form.timeline,
-      stampingRequired: form.stampingRequired,
-      stampingJurisdiction: form.stampingJurisdiction,
-      stampingEmirate: form.stampingEmirate,
-      fullName: form.fullName,
-      email: form.email,
-      phone: form.phone,
-      uploadedFileNames: uploadedFiles,
-      status: 'new',
-    });
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      await appClient.entities.ProjectOrder.create({
+        projectType: form.projectType,
+        buildingLength: form.buildingLength,
+        buildingWidth: form.buildingWidth,
+        buildingHeight: form.buildingHeight,
+        numberOfFloors: form.numberOfFloors,
+        roofStyle: form.roofStyle,
+        intendedUse: form.intendedUse,
+        projectAddress: form.projectLocation,
+        hasSitePlan: form.foundation,
+        selectedServices: [
+          form.foundation === 'Yes' ? 'Foundation plan' : null,
+          form.framing === 'Yes' ? 'Structural framing drawings' : null,
+          form.mep === 'Yes' ? 'MEP layouts' : null,
+          form.calculations === 'Yes' ? 'Structural calculations' : null,
+          form.revisions === 'Yes' ? 'Permit review revisions' : null,
+        ].filter(Boolean),
+        timeline: form.timeline,
+        stampingRequired: form.stampingRequired,
+        stampingJurisdiction: form.stampingJurisdiction,
+        stampingEmirate: form.stampingEmirate,
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        uploadedFileNames: uploadedFiles,
+        status: 'new',
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Estimator submission failed:', error);
+      setSubmitError(submissionErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -365,6 +375,12 @@ export default function Estimator() {
                       </div>
 
                       <div className="space-y-2">
+                        {submitError && (
+                          <div role="alert" className="mb-3 border border-red-400 bg-red-950/70 text-red-100 p-4 font-inter text-sm">
+                            <strong>Estimate request not confirmed.</strong> {submitError}{' '}
+                            <a href="mailto:info@polebarndominiumsite.site" className="underline font-semibold">Email our team</a>.
+                          </div>
+                        )}
                         <button onClick={handleSubmit} disabled={loading || !canSubmit}
                           className="yellow-btn w-full py-3 text-xs text-center disabled:opacity-50">
                           {loading ? 'Submitting...' : 'Submit for Pricing Review'}

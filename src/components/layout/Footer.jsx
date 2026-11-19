@@ -111,10 +111,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Disclaimer */}
+        {/* Professional team service information */}
         <div className="border-t border-white/10 mt-10 pt-8">
-          <p className="font-inter text-gray-500 text-xs leading-relaxed max-w-4xl">
-            <span className="text-gray-400 font-medium">Disclaimer:</span> Design and permit requirements vary by project location. Some projects may require review, approval, or stamping by a licensed professional in the project jurisdiction. Pole Barndominium Designs prepares design and drafting documentation based on the project scope and information provided by the client.
+          <p className="font-inter text-gray-400 text-xs leading-relaxed max-w-4xl">
+            <span className="text-white font-semibold">Design, engineering and professional sealing:</span>{' '}
+            Our team coordinates architectural, structural and MEP drawing packages for projects across the United States and UAE. Clients can request professional review and sealed drawings through licensed engineering and architectural partners in the selected jurisdiction. We deliver coordinated, submission-ready drawing packages for the agreed scope.
           </p>
         </div>
 

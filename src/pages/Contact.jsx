@@ -5,6 +5,7 @@ import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
 import { appClient } from '@/api/appClient';
 import FileUploader from '../components/shared/FileUploader';
 import MobileSelect from '../components/mobile/MobileSelect';
+import StampRequestFields from '../components/shared/StampRequestFields';
 
 const CHECKLIST = [
   'Building length, width, and height',
@@ -22,6 +23,7 @@ export default function Contact() {
     name: '', email: '', phone: '', projectLocation: '',
     buildingType: '', buildingSize: '', servicesNeeded: '',
     permitStatus: '', projectDescription: '', budgetRange: '',
+    stampingRequired: '', stampingJurisdiction: '', stampingEmirate: '',
   });
   const [fileData, setFileData] = useState({ urls: [], names: [] });
   const [submitted, setSubmitted] = useState(false);
@@ -238,6 +240,13 @@ export default function Contact() {
                     />
                   </div>
                 </div>
+
+                <StampRequestFields
+                  stampingRequired={form.stampingRequired}
+                  stampingJurisdiction={form.stampingJurisdiction}
+                  stampingEmirate={form.stampingEmirate}
+                  onChange={changes => setForm(prev => ({ ...prev, ...changes }))}
+                />
 
                 {/* File upload */}
                 <FileUploader

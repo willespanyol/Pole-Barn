@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
 import { appClient } from '@/api/appClient';
 import PageLayout from '../components/layout/PageLayout';
+import { submissionErrorMessage } from '@/lib/submissionErrors';
 import OrderStep1 from '../components/order/OrderStep1';
 import OrderStep2 from '../components/order/OrderStep2';
 import OrderStep3 from '../components/order/OrderStep3';
@@ -44,31 +45,46 @@ export default function Order() {
   const [data, setData] = useState(initialData);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const updateData = (updates) => setData(prev => ({ ...prev, ...updates }));
 
   const handleSubmit = async () => {
+    if (loading) return;
     if (data.stampingRequired === 'Yes' && (!data.stampingJurisdiction || (data.stampingJurisdiction === 'United Arab Emirates (UAE)' && !data.stampingEmirate))) {
       setStep(3);
+      setSubmitError('Please select the state or UAE emirate where professional stamping is required.');
       return;
     }
+    setSubmitError('');
     setLoading(true);
-    const order = await appClient.entities.ProjectOrder.create(data);
-    // Create tentative Google Calendar consultation event
     try {
-      const result = await appClient.functions.invoke('createConsultationEvent', {
-        orderId: order.id,
-        clientName: data.fullName,
-        clientEmail: data.email,
-        projectType: data.projectType,
-        projectLocation: [data.city, data.state, data.country].filter(Boolean).join(', '),
-      });
-      if (result.data?.eventId) {
-        await appClient.entities.ProjectOrder.update(order.id, { calendarEventId: result.data.eventId });
-      }
-    } catch (_) { /* non-blocking */ }
-    setLoading(false);
-    setSubmitted(true);
+      const order = await appClient.entities.ProjectOrder.create(data);
+      setSubmitted(true);
+
+      // Calendar integration is optional and must never delay a saved order.
+      void (async () => {
+        try {
+          const result = await appClient.functions.invoke('createConsultationEvent', {
+            orderId: order.id,
+            clientName: data.fullName,
+            clientEmail: data.email,
+            projectType: data.projectType,
+            projectLocation: [data.city, data.state, data.country].filter(Boolean).join(', '),
+          });
+          if (result.data?.eventId) {
+            await appClient.entities.ProjectOrder.update(order.id, { calendarEventId: result.data.eventId });
+          }
+        } catch (calendarError) {
+          console.warn('Optional calendar event creation was unsuccessful:', calendarError);
+        }
+      })();
+    } catch (error) {
+      console.error('Project order submission failed:', error);
+      setSubmitError(submissionErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -177,6 +193,13 @@ export default function Order() {
           <p className="mt-6 font-inter text-steel text-xs leading-relaxed">
             Need signed and sealed documents for submission? Select professional stamping under Site &amp; Permit. Our multidisciplinary team coordinates drawings, engineering review and licensed professional sealing for US and UAE projects.
           </p>
+
+          {submitError && (
+            <div role="alert" className="mt-5 border border-red-300 bg-red-50 text-red-900 p-4 font-inter text-sm">
+              <strong>Request not confirmed.</strong> {submitError}{' '}
+              <a className="underline font-semibold" href="mailto:info@polebarndominiumsite.site">Email our team</a>.
+            </div>
+          )}
 
           {/* Navigation */}
           <div className="flex items-center justify-between mt-4 pt-5 border-t border-silver">

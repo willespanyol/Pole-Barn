@@ -131,7 +131,11 @@ function createEntityClient(entityName) {
       }
 
       if (!supabase) {
-        // Demo mode only: does NOT save to the production website.
+        // Never pretend a production enquiry was submitted to localStorage.
+        if (!import.meta.env.DEV) {
+          throw new Error('The website submission service is not configured.')
+        }
+        // Development demo mode only: does NOT save to the production website.
         const rows = readLocal(entityName)
         rows.unshift(created)
         writeLocal(entityName, rows)

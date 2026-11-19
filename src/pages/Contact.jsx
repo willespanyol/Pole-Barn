@@ -1,4 +1,5 @@
 import PageLayout from '../components/layout/PageLayout';
+import { submissionErrorMessage } from '@/lib/submissionErrors';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
@@ -28,19 +29,28 @@ export default function Contact() {
   const [fileData, setFileData] = useState({ urls: [], names: [] });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const update = (key, val) => setForm(p => ({ ...p, [key]: val }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    setSubmitError('');
     setLoading(true);
-    await appClient.entities.ContactInquiry.create({
-      ...form,
-      file_name: fileData.names.join(', ') || null,
-      file_urls: fileData.urls,
-    });
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      await appClient.entities.ContactInquiry.create({
+        ...form,
+        file_name: fileData.names.join(', ') || null,
+        file_urls: fileData.urls,
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Contact form submission failed:', error);
+      setSubmitError(submissionErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -263,6 +273,13 @@ export default function Contact() {
                     className="w-full border border-silver px-4 py-3 font-inter text-sm text-navy focus:outline-none focus:border-navy transition-colors resize-none"
                     placeholder="Describe your project, required drawings, permit needs, or any specific requirements..." />
                 </div>
+
+                {submitError && (
+                  <div role="alert" className="border border-red-300 bg-red-50 text-red-900 p-4 font-inter text-sm">
+                    <strong>Inquiry not confirmed.</strong> {submitError}{' '}
+                    <a className="underline font-semibold" href="mailto:info@polebarndominiumsite.site">Email our team</a>.
+                  </div>
+                )}
 
                 <button type="submit" disabled={loading}
                   className="yellow-btn px-10 py-4 text-sm flex items-center gap-2 disabled:opacity-60">

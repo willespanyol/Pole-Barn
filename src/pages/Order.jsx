@@ -174,9 +174,8 @@ export default function Order() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Disclaimer */}
-          <p className="mt-6 font-inter text-steel/50 text-xs leading-relaxed">
-            Design and permit requirements vary by project location. Some projects may require review, approval, or stamping by a licensed professional in the project jurisdiction. Pole Barndominium Designs prepares design and drafting documentation based on the project scope and information provided by the client.
+          <p className="mt-6 font-inter text-steel text-xs leading-relaxed">
+            Need signed and sealed documents for submission? Select professional stamping under Site &amp; Permit. Our multidisciplinary team coordinates drawings, engineering review and licensed professional sealing for US and UAE projects.
           </p>
 
           {/* Navigation */}

@@ -78,6 +78,7 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li><a href="/blog/" className="text-gray-400 hover:text-yellow font-inter text-sm transition-colors">Articles &amp; Permit Guides</a></li>
             </ul>
           </div>
 
